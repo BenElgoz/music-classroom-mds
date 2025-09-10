@@ -20,7 +20,8 @@ model User {
   // Relations
   votes       Vote[]
   tracks      Track[]
-
+  authTokens  AuthToken[]
+  
   @@map("users")
 }
 

@@ -8,3 +8,5 @@ build/
 out/
 tmp/
 temp/
+/src/generated/prisma
+prisma/dev.db
