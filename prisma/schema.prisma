@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"  // ou "postgresql" en production
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  firstname   String
+  lastname    String
+  promotion   String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  lastLogin   DateTime?
+
+  // Relations
+  votes       Vote[]
+  tracks      Track[]
+
+  @@map("users")
+}
+
+model Session {
+  id          Int      @id @default(autoincrement())
+  subject     String
+  teacher     String
+  promotion   String
+  classroom   String
+  date        String   // Format: YYYY-MM-DD
+  startTime   String   // Format: HH:MM
+  endTime     String   // Format: HH:MM
+  createdAt   DateTime @default(now())
+
+  // Relations
+  tracks      Track[]
+  votes       Vote[]
+
+  @@map("sessions")
+}
+
+model Track {
+  id          Int      @id @default(autoincrement())
+  artist      String
+  title       String
+  submittedAt DateTime @default(now())
+
+  // Relations
+  submittedBy User     @relation(fields: [userId], references: [id])
+  userId      Int
+  session     Session  @relation(fields: [sessionId], references: [id])
+  sessionId   Int
+  votes       Vote[]
+
+  @@map("tracks")
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  votedAt   DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  track     Track    @relation(fields: [trackId], references: [id])
+  trackId   Int
+  session   Session  @relation(fields: [sessionId], references: [id])
+  sessionId Int
+
+  // Contrainte: un vote par utilisateur par jour
+  @@unique([userId, sessionId])
+  @@map("votes")
+}
+
+model AuthToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+
+  @@map("auth_tokens")
+}
+
+model PreRegisteredUser {
+  id        Int    @id @default(autoincrement())
+  email     String @unique
+  firstname String
+  lastname  String
+  promotion String
+  isUsed    Boolean @default(false)
+
+  @@map("pre_registered_users")
+}
