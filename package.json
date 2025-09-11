@@ -10,7 +10,8 @@
     "prisma:seed": "node prisma/seed.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "scrap": "node src/jobs/scraper.js"
   },
   "keywords": [],
   "author": "",
