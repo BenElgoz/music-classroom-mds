@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Classroom</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+      h1 { margin: 0 0 12px; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 8px 10px; border-bottom: 1px solid #eee; text-align: left; }
+      tr:hover { background: #fafafa; }
+      button { padding: 8px 12px; cursor: pointer; }
+      input, select { padding: 8px; width: 100%; box-sizing: border-box; }
+      .card { border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px; }
+      .muted { color: #6b7280; font-size: 14px; }
+      .row { display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+  <h1>Music Classroom</h1>
+  <div class="grid">
+    <div class="card">
+      <h2>Sessions du jour</h2>
+      <div id="sessions-status" class="muted">Chargement...</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Heure</th>
+            <th>Matière</th>
+            <th>Enseignant</th>
+            <th>Promotion</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="sessions-body"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Détail session</h2>
+      <div id="login-block" class="muted">
+        <div class="row">
+          <input id="email" type="email" placeholder="Votre email" />
+          <button id="save-email">Entrer</button>
+        </div>
+      </div>
+
+      <div id="session-detail"></div>
+
+      <div id="propose-form" style="display:none; margin-top:12px;">
+        <h3>Proposer un morceau</h3>
+        <div class="row"><input id="artist" placeholder="Artiste" /><input id="title" placeholder="Titre" /></div>
+        <button id="submit-track">Soumettre</button>
+        <div id="submit-status" class="muted"></div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <h3>Morceaux proposés</h3>
+        <div id="tracks-status" class="muted">Sélectionnez une session</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Artiste</th>
+              <th>Titre</th>
+              <th>Votes</th>
+            </tr>
+          </thead>
+          <tbody id="tracks-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js" type="module"></script>
+</body>
+</html>

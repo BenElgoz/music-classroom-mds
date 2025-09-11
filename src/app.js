@@ -4,17 +4,38 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
+import sessionsRouter from './routes/sessions.js';
+import tracksRouter from './routes/tracks.js';
+import votesRouter from './routes/votes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
-app.use(helmet());
+// Assouplir Helmet en dev (désactiver CSP qui bloque les connexions locales)
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Servir le frontend statique
+const frontendDir = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendDir));
+
 app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
+app.use('/api', sessionsRouter);
+app.use('/api', tracksRouter);
+app.use('/api', votesRouter);
+
+// Route racine -> index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendDir, 'index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
