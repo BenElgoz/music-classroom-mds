@@ -1,5 +1,7 @@
 import cron from 'node-cron';
 import ScrapingService from '../services/scraping.js';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 class ScraperJob {
   constructor() {
@@ -12,10 +14,16 @@ class ScraperJob {
 
   start() {
     console.log('🚀 Démarrage du job: tous les jours à 8h45 (Europe/Paris)');
-    this.cronJob = cron.schedule('45 8 * * *', async () => {
-      await this.run();
-    }, { scheduled: true, timezone: 'Europe/Paris' });
 
+    this.cronJob = cron.schedule(
+      '45 8 * * *',
+      async () => {
+        await this.run();
+      },
+      { scheduled: true, timezone: 'Europe/Paris' }
+    );
+
+    // Exécution immédiate au démarrage
     this.run();
   }
 
@@ -58,15 +66,32 @@ class ScraperJob {
   }
 }
 
+// Détection robuste du "lancement direct" (cross‑platform)
+const isDirectRun = (() => {
+  try {
+    const modulePath = fileURLToPath(import.meta.url);      // chemin absolu du module courant
+    const argvPath = path.resolve(process.argv[1] ?? '');   // chemin absolu de l'entrée Node
+    return modulePath === argvPath;
+  } catch {
+    return false;
+  }
+})();
+
 // Lancement direct (ESM)
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectRun) {
   const job = new ScraperJob();
   job.start();
 
   process.on('SIGINT', async () => {
     console.log('\n🛑 Arrêt');
     job.stop();
-    await job.scrapingService.cleanup();
+    if (job.scrapingService?.cleanup) {
+      try {
+        await job.scrapingService.cleanup();
+      } catch (e) {
+        console.error('Erreur cleanup:', e?.message || e);
+      }
+    }
     process.exit(0);
   });
 }
