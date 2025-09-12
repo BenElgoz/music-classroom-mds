@@ -23,16 +23,41 @@ export async function createTrack(req, res) {
     if (!artist || !title || !sessionId || !userId) {
       return res.status(400).json({ error: 'artist, title, sessionId, userId requis' });
     }
+
+    const session = await prisma.session.findUnique({
+      where: { id: Number(sessionId) }
+    });
+    if (!session) {
+      return res.status(404).json({ error: 'Session non trouvée' });
+    }
+
+    let user = await prisma.user.findFirst({
+      where: { email: userId.toString() } // On utilise l'email comme identifiant pour l'instant
+    });
+
+    if (!user) {
+      // Créer un utilisateur temporaire
+      user = await prisma.user.create({
+        data: {
+          email: userId.toString(),
+          firstname: 'User',
+          lastname: 'Temp',
+          promotion: 'Unknown'
+        }
+      });
+    }
+
     const track = await prisma.track.create({
       data: {
         artist,
         title,
         sessionId: Number(sessionId),
-        userId: Number(userId)
+        userId: user.id
       }
     });
     res.status(201).json(track);
   } catch (e) {
+    console.error('Error in createTrack:', e);
     res.status(500).json({ error: e.message });
   }
 }
