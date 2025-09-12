@@ -40,14 +40,15 @@
 
     <div class="card">
       <h2>Détail session</h2>
-      <div id="login-block" class="muted">
+      <div id="session-detail"></div>
+
+      <div id="login-block" style="display:none; margin-top:12px;">
+        <h3>Connexion</h3>
         <div class="row">
           <input id="email" type="email" placeholder="Votre email" />
           <button id="save-email">Entrer</button>
         </div>
       </div>
-
-      <div id="session-detail"></div>
 
       <div id="propose-form" style="display:none; margin-top:12px;">
         <h3>Proposer un morceau</h3>
@@ -65,6 +66,7 @@
               <th>Artiste</th>
               <th>Titre</th>
               <th>Votes</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="tracks-body"></tbody>

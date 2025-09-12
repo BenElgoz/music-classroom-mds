@@ -23,7 +23,8 @@ saveEmailBtn?.addEventListener('click', () => {
   if (!v) return;
   userEmail = v;
   localStorage.setItem('email', v);
-  alert('Email enregistré (mock).');
+  document.getElementById('login-block').style.display = 'none';
+  proposeForm.style.display = 'block';
 });
 
 async function fetchJSON(url, opts) {
@@ -66,7 +67,10 @@ function selectSession(s) {
     <div class="muted">${s.teacher || ''} · ${s.promotion || ''}</div>
     <div class="muted">${s.startTime || ''} - ${s.endTime || ''} (${s.date})</div>
   `;
-  proposeForm.style.display = 'block';
+  
+
+  document.getElementById('login-block').style.display = 'block';
+  proposeForm.style.display = 'none';
   loadTracks();
 }
 
@@ -92,7 +96,9 @@ async function loadTracks() {
         <td>${t.artist}</td>
         <td>${t.title}</td>
         <td>${t.voteCount}</td>
+        <td><button class="like-btn" data-track-id="${t.id}">👍 ${t.voteCount}</button></td>
       `;
+      tr.querySelector('.like-btn').addEventListener('click', () => voteTrack(t.id));
       tracksBody.appendChild(tr);
     }
   } catch (e) {
@@ -110,21 +116,40 @@ submitBtn?.addEventListener('click', async () => {
 
   submitStatus.textContent = 'Envoi...';
   try {
-    // Mock userId depuis le hash de l'email (simple)
-    const userId = Math.abs(hashCode(userEmail)) % 100000 + 1;
     await fetchJSON(`${API_BASE}/tracks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ artist, title, sessionId: selectedSession.id, userId })
+      body: JSON.stringify({ artist, title, sessionId: selectedSession.id, userId: userEmail })
     });
     submitStatus.textContent = '✅ Envoyé';
     artistInput.value = '';
     titleInput.value = '';
+    // Masquer le formulaire après envoi
+    proposeForm.style.display = 'none';
     await loadTracks();
   } catch (e) {
     submitStatus.textContent = '❌ Erreur envoi';
   }
 });
+
+async function voteTrack(trackId) {
+  if (!userEmail) return alert('Connectez-vous d\'abord');
+  
+  try {
+    await fetchJSON(`${API_BASE}/votes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: userEmail, trackId })
+    });
+    await loadTracks();
+  } catch (e) {
+    if (e.message.includes('Déjà voté')) {
+      alert('Vous avez déjà voté pour cette session aujourd\'hui');
+    } else {
+      alert('Erreur lors du vote');
+    }
+  }
+}
 
 function hashCode(str) {
   let h = 0; for (let i = 0; i < str.length; i++) { h = ((h<<5)-h) + str.charCodeAt(i); h |= 0; }
