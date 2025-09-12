@@ -22,9 +22,6 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Servir le frontend statique
-const frontendDir = path.join(__dirname, '..', 'frontend');
-app.use(express.static(frontendDir));
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
@@ -36,6 +33,11 @@ app.use('/api', votesRouter);
 app.get('/', (req, res) => {
   res.sendFile(path.join(frontendDir, 'index.html'));
 });
+
+// Servir le frontend statique
+const frontendDir = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendDir));
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
