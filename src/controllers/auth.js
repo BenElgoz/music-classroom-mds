@@ -1,6 +1,7 @@
 import { prisma } from '../config/database.js';
 import { signJwt, verifyJwt } from '../utils/jwt.js';
 import { sendLoginLink } from '../services/email.js';
+import { startEmailLogin, consumeLoginToken } from '../services/auth.js';
 
 export const register = async (req, res) => {
   const { email } = req.body;
@@ -48,3 +49,25 @@ export const login = async (req, res) => {
     res.status(401).json({ error: 'Token invalide' });
   }
 };
+
+export async function loginStart(req, res, next) {
+  try {
+    const { email } = req.body ?? {};
+    if (!email) return res.status(400).json({ error: 'Email requis' });
+    await startEmailLogin(email);
+    res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function callback(req, res, next) {
+  try {
+    const token = req.query.token;
+    if (!token) return res.status(400).json({ error: 'Token manquant' });
+    const { token: jwt, user } = await consumeLoginToken(token);
+    res.json({ token: jwt, user });
+  } catch (e) {
+    next(e);
+  }
+}
