@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: music_classroom_db
+    container_name: ${POSTGRES_CONTAINER_NAME}
     environment:
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
-      POSTGRES_DB: music_classroom
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
     volumes:
@@ -24,7 +24,7 @@ services:
       - '3000:3000'
     volumes:
       - .:/app
-    command: sh -c "sleep 5 && npx prisma db push && node src/jobs/scraper.js"
+    command: sh -c "npx prisma db push && node src/app.js && node src/jobs/scraper.js"
 
 volumes:
   db_data:
